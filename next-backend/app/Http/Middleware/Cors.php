@@ -13,10 +13,8 @@ class Cors
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        return $next($request)
-            ->header('Access-Control-Allow-Origin', 'https://cobanihya.vercel.app')
-            ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        return $next($request);
     }
 }

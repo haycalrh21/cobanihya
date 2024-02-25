@@ -1,116 +1,120 @@
 'use client'
-import React, { useState, useEffect } from 'react'
-import axios from '@/lib/axios'
-
+import React, { useState, useEffect } from 'react';
+import axios from '@/lib/axios';
 const Ahp = () => {
-    const [productName, setProductName] = useState('')
-    const [productPrice, setProductPrice] = useState('')
-    const [result, setResult] = useState('')
-    const [products, setProducts] = useState([])
+    const [productName, setProductName] = useState('');
+    const [productPrice, setProductPrice] = useState('');
+    const [productCategory, setProductCategory] = useState('');
+    const [result, setResult] = useState('');
+    const [products, setProducts] = useState([]);
 
     useEffect(() => {
-        fetchData()
-    }, [])
+        fetchData();
+    }, []);
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('api/dataproduct')
-            setProducts(response.data)
+            const response = await axios.get('api/dataproduct');
+            setProducts(response.data);
         } catch (error) {
-            console.error('Error fetching data:', error)
+            console.error('Error fetching data:', error);
         }
-    }
+    };
 
-    const handleSubmit = e => {
-        e.preventDefault()
-        // Lakukan perhitungan AHP berdasarkan nama dan harga
-        // Simpan hasil perhitungan ke dalam state result
-        const calculatedResult = calculateAhp(productName, productPrice)
-        setResult(calculatedResult)
-    }
+    const handleSubmit = (e) => {
+        e.preventDefault();
 
-    const calculateAhp = (name, price) => {
-        // Implementasi perhitungan AHP disini
-        // Gunakan data produk dari state products untuk perhitungan AHP
-
-        // Contoh sederhana:
-        const weightName = 0.6 // Bobot untuk nama produk
-        const weightPrice = 0.4 // Bobot untuk harga produk
-        const scoreName = name.length // Skor nama produk (contoh sederhana: panjang nama)
-        const scorePrice = parseInt(price) // Skor harga produk (contoh sederhana: harga dalam angka)
-
-        // Hitung nilai total berdasarkan bobot dan skor
-        const totalScore = weightName * scoreName + weightPrice * scorePrice
-
-        // Ubah totalScore menjadi 3 angka
-        const roundedTotalScore = Math.round(totalScore * 1000) / 1000
-
-        // Klasifikasikan nilai AHP berdasarkan rentang harga
-        let classification = ''
-        if (scorePrice < 50000) {
-            classification = 'Murah'
-        } else if (scorePrice <= 100000) {
-            classification = 'Sedang'
-        } else {
-            classification = 'Mahal'
+        // Hitung bobot berdasarkan harga produk
+        let priceWeight = 1;
+        const price = parseFloat(productPrice);
+        if (price < 50000) {
+            priceWeight = 0.2; // 1/5
+        } else if (price > 50000 && price <= 100000) {
+            priceWeight = 0.6; // 3/5
+        } else if (price > 100000) {
+            priceWeight = 1; // 5/5
         }
 
-        return `${roundedTotalScore} - ${classification}`
-    }
+        // Hitung bobot berdasarkan kategori produk
+        let categoryWeight = 1;
+        switch (productCategory) {
+            case 'Makanan':
+                categoryWeight = 0.1; // 0.5/5
+                break;
+            case 'Minuman':
+                categoryWeight = 0.06; // 0.3/5
+                break;
+            case 'Pakaian':
+                categoryWeight = 0.2; // 1/5
+                break;
+            case 'Peralatan':
+                categoryWeight = 1; // 5/5
+                break;
+            default:
+                categoryWeight = 0.08; // 0.4/5 (Default jika kategori tidak ditemukan)
+        }
+
+        // Hitung total bobot
+        const totalWeight = (priceWeight + categoryWeight) / 2;
+        setResult(totalWeight.toString());
+    };
 
     const handleProductChange = e => {
-        const selectedProductName = e.target.value
-        const selectedProduct = products.find(
-            product => product.nama === selectedProductName,
-        )
+        const selectedProductName = e.target.value;
+        const selectedProduct = products.find(product => product.nama === selectedProductName);
         if (selectedProduct) {
-            setProductPrice(selectedProduct.harga)
+            setProductPrice(selectedProduct.harga);
+            setProductCategory(selectedProduct.kategori);
         }
-        setProductName(selectedProductName)
-    }
+        setProductName(selectedProductName);
+    };
 
     return (
-        <div>
-            <h1>Perhitungan Sistem AHP</h1>
-            <form onSubmit={handleSubmit}>
+        <div className="max-w-lg mx-auto mt-8">
+            <h1 className="text-2xl font-semibold mb-4">Perhitungan Sistem AHP</h1>
+            <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label>Pilih Produk:</label>
-                    <select value={productName} onChange={handleProductChange}>
+                    <label className="block">Pilih Produk:</label>
+                    <select value={productName} onChange={handleProductChange} className="border border-gray-300 rounded-md px-3 py-2 w-full">
                         <option value="">Pilih Produk</option>
                         {products.map((product, index) => (
-                            <option key={index} value={product.nama}>
-                                {product.nama}
-                            </option>
+                            <option key={index} value={product.nama}>{product.nama}</option>
                         ))}
                     </select>
                 </div>
                 <div>
-                    <label>Harga Produk:</label>
+                    <label className="block">Kategori Produk:</label>
+                    <input
+                        type="text"
+                        value={productCategory}
+                        readOnly
+                        className="border border-gray-300 rounded-md px-3 py-2 w-full"
+                    />
+                </div>
+                <div>
+                    <label className="block">Harga Produk:</label>
                     <input
                         type="text"
                         value={productPrice}
                         onChange={e => setProductPrice(e.target.value)}
+                        className="border border-gray-300 rounded-md px-3 py-2 w-full"
                     />
                 </div>
                 <button
                     type="submit"
-                    style={{
-                        backgroundColor: 'green',
-                        borderRadius: '8px',
-                        fontSize: '16px',
-                        padding: '10px 20px',
-                    }}>
+                    className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                >
                     Hitung
                 </button>
             </form>
             {result && (
-                <div>
-                    Hasil Perhitungan AHP:{' '}
-                    {(parseFloat(result) / 100000).toFixed(2)}
+                <div className="mt-4">
+                    <span className="font-semibold">Hasil Perhitungan AHP: </span>
+                    <span>{result}</span>
                 </div>
             )}
         </div>
-    )
-}
+    );
+};
 
-export default Ahp
+export default Ahp;

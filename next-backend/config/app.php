@@ -72,7 +72,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Asia/Jakarta',
 
     /*
     |--------------------------------------------------------------------------
@@ -85,7 +85,7 @@ return [
     |
     */
 
-    'locale' => 'en',
+    'locale' => 'id',
 
     /*
     |--------------------------------------------------------------------------
@@ -97,6 +97,7 @@ return [
     | the language folders that are provided through your application.
     |
     */
+    'faker_locale' => 'id_ID',
 
     'fallback_locale' => 'en',
 
@@ -111,7 +112,7 @@ return [
     |
     */
 
-    'faker_locale' => 'en_US',
+
 
     /*
     |--------------------------------------------------------------------------
